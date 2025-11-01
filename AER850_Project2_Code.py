@@ -11,6 +11,7 @@ from tensorflow.keras import layers
 #Issue: can't import image data generator without including tensorflow. even
 #even though keras was imported earlier
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
+#Did not end up utilizing this
 from tensorflow.keras.utils import image_dataset_from_directory
 
 #Step 1: Data Processing
@@ -183,5 +184,41 @@ test_gen = test_datagen.flow_from_directory(
     color_mode='rgb', 
     )
 
+#Final product of code trying to predict test dataset
 predictions = mdl.predict(test_gen, verbose=1)
+
+#Defining all the class labels
+class_labels = list(test_gen.class_indices.keys())
+
+#Visualize the predictions for 5 different images
+image_indices = [3, 15, 20, 55, 67] #Random image indices picked
+
+for i in image_indices:
+    
+    #Retrieves the image and true label for a random image
+    img, label = test_gen[i]
+    
+    #Predict Probabilities
+    probabilities = predictions[i] #List of probabilities of Image
+    predicted_index = np.argmax(probabilities) #Retrieves the index of the one with highest #
+    true_index = np.argmax(label) #Retrieves index of true label (since it's encoded)
+    
+    predicted_label = class_labels[predicted_index] #Retrieves the predicted label
+    true_label = class_labels[true_index]
+    
+    #plot the image + display the probabilities
+    plt.imshow(img[0])
+    plt.axis("off")
+    plt.title(
+        f"True Classification Label: {true_label}\n"
+        f"Predicted Classification Label: {predicted_label}",
+        fontsize=10, loc='left', pad=10
+        )
+    
+    text = '\n'.join([
+        f"{cls.capitalize()}: {probabilities[j]*100:.1f}%" for j, cls in enumerate(class_labels)
+        ])
+    plt.text(10, 470, text, color='green', fontsize=10, weight='bold')
+    plt.show()
+    
 #Again trying to commit code to thing
